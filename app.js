@@ -45,10 +45,10 @@ const drawControl = new L.Control.Draw({
   draw: {
     polygon: {
       allowIntersection: false,
-      shapeOptions: { color: '#ffcc00', weight: 2, fillOpacity: 0.3 }
+      shapeOptions: getDrawStyle()
     },
     polyline: {
-      shapeOptions: { color: '#ffcc00', weight: 3 }
+      shapeOptions: getDrawStyle()
     },
     rectangle: false,
     circle: false,
@@ -57,6 +57,48 @@ const drawControl = new L.Control.Draw({
   }
 });
 map.addControl(drawControl);
+
+// Re-apply style when mode changes
+function refreshDrawStyles() {
+  const style = getDrawStyle();
+  drawControl.options.draw.polygon.shapeOptions = style;
+  drawControl.options.draw.polyline.shapeOptions = style;
+}
+
+// ---------- Mode buttons (custom control) ----------
+const modeControl = L.Control.extend({
+  options: { position: 'topleft' },
+  onAdd: function() {
+    const div = L.DomUtil.create('div', 'mode-control');
+    div.style.cssText = 'background:#1a1a1a;padding:6px;border-radius:8px;display:flex;flex-direction:column;gap:4px;margin-top:10px;';
+    div.innerHTML = `
+      <button class="mode-btn" data-mode="A" style="background:#d62828;color:#fff;border:none;padding:6px 10px;border-radius:5px;font-size:12px;cursor:pointer;">🔴 Red</button>
+      <button class="mode-btn" data-mode="neutral" style="background:#888;color:#fff;border:none;padding:6px 10px;border-radius:5px;font-size:12px;cursor:pointer;">⚫ Grey</button>
+      <button class="mode-btn" data-mode="front" style="background:#8b0000;color:#fff;border:none;padding:6px 10px;border-radius:5px;font-size:12px;cursor:pointer;">— Front</button>
+    `;
+    // prevent map interactions
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+
+    // click handlers
+    setTimeout(() => {
+      div.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentMode = btn.getAttribute('data-mode');
+          refreshDrawStyles();
+          // highlight active
+          div.querySelectorAll('.mode-btn').forEach(b => b.style.outline = 'none');
+          btn.style.outline = '2px solid #ffcc00';
+        });
+      });
+      // default highlight Red
+      div.querySelector('[data-mode="A"]').style.outline = '2px solid #ffcc00';
+    }, 0);
+
+    return div;
+  }
+});
+map.addControl(new modeControl());
 
 // ---------- Helpers ----------
 function getToday() {
