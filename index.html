@@ -71,9 +71,17 @@
   <div id="info">Loading...</div>
 
   <div id="exportBox">
-    <button class="close" onclick="document.getElementById('exportBox').style.display='none'">Close</button>
-    <h3 style="color:#fff;margin:8px 0;">Copy this JSON → paste into data file</h3>
-    <textarea id="exportText" readonly></textarea>
+  <button class="close" onclick="document.getElementById('exportBox').style.display='none'">Close</button>
+  <h3 style="color:#fff;margin:8px 0;">1. Copy → 2. Open GitHub → 3. Paste & Commit</h3>
+
+  <div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn" id="copyBtn" style="background:#2a7;border-color:#2a7;font-weight:bold;">📋 Copy JSON</button>
+    <button class="btn" id="openGithubBtn" style="background:#0366d6;border-color:#0366d6;font-weight:bold;">🐙 Open GitHub</button>
+  </div>
+
+  <textarea id="exportText" readonly></textarea>
+
+  <div id="copyStatus" style="color:#2a7;font-size:13px;margin-top:8px;"></div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
