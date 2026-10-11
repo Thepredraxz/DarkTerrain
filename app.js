@@ -7,7 +7,7 @@
 const map = L.map('map', {
   zoomControl: true,
   attributionControl: true
-}).setView([48.5, 37.5], 6);
+}).setView([50.1, 36.2], 10);
 
 // Dark tile layer (free, no API key needed)
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
