@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-11",
+  "source": "example",
+  "zones": [
+    {
+      "name": "Zone 1",
+      "side": "A",
+      "note": "Example zone",
+      "coords": [
+        [50.1, 36.2],
+        [50.3, 36.5],
+        [50.0, 36.8]
+      ]
+    },
+    {
+      "name": "Zone 2",
+      "side": "B",
+      "note": "Example zone",
+      "coords": [
+        [49.5, 36.0],
+        [49.7, 36.3],
+        [49.4, 36.6]
+      ]
+    }
+  ]
+}
