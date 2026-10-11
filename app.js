@@ -55,14 +55,9 @@ async function loadDay(date) {
 
     data.zones.forEach(zone => {
       const style = SIDE_COLORS[zone.side] || SIDE_COLORS.neutral;
-      const popup =
-        '<b>' + zone.name + '</b><br>' +
-        'Side: ' + (zone.side || 'unknown') +
-        (zone.note ? '<br><i>' + zone.note + '</i>' : '');
-
       L.polygon(zone.coords, style)
-        .bindPopup(popup)
-        .addTo(zonesLayer);
+  .bindTooltip(zone.name, { sticky: true })
+  .addTo(zonesLayer);
     });
 
     info.textContent =
