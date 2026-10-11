@@ -119,7 +119,6 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     if (layer instanceof L.Polygon) {
       const latlngs = layer.getLatLngs()[0];
       const coords = latlngs.map(p => [round(p.lat), round(p.lng)]);
-      // close ring
       if (coords.length > 0) coords.push(coords[0]);
       zones.push({
         name: 'Zone ' + (zones.length + 1),
@@ -145,9 +144,36 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   };
 
   document.getElementById('exportText').value = JSON.stringify(output, null, 2);
+  document.getElementById('copyStatus').textContent = '';
   document.getElementById('exportBox').style.display = 'block';
 });
 
 function round(n) {
   return Math.round(n * 10000) / 10000;
 }
+
+// ---------- Copy to clipboard ----------
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const text = document.getElementById('exportText').value;
+  const status = document.getElementById('copyStatus');
+
+  try {
+    await navigator.clipboard.writeText(text);
+    status.textContent = '✅ Copied! Now click "Open GitHub" and paste there.';
+    status.style.color = '#2a7';
+  } catch (err) {
+    // fallback for old browsers
+    const ta = document.getElementById('exportText');
+    ta.select();
+    document.execCommand('copy');
+    status.textContent = '✅ Copied (fallback). Now open GitHub.';
+    status.style.color = '#2a7';
+  }
+});
+
+// ---------- Open GitHub edit page ----------
+document.getElementById('openGithubBtn').addEventListener('click', () => {
+  const date = datePicker.value;
+  const url = `https://github.com/Thepredrazx/DarkTerrain/edit/main/data/${date}.json`;
+  window.open(url, '_blank');
+});
