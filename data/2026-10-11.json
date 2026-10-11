@@ -1,25 +1,31 @@
 {
-  "date": "2026-10-11",
-  "source": "example",
+  "date": "2026-10-12",
+  "source": "OSINT reconstruction",
   "zones": [
     {
-      "name": "Zone 1",
+      "name": "Russia",
       "side": "A",
-      "note": "Example zone",
+      "note": "Russian Federation",
       "coords": [
-        [50.1, 36.2],
-        [50.3, 36.5],
-        [50.0, 36.8]
+        [82.0, 30.0],
+        [82.0, 180.0],
+        [50.0, 180.0],
+        [50.0, 40.0],
+        [45.0, 40.0],
+        [45.0, 30.0],
+        [82.0, 30.0]
       ]
     },
     {
-      "name": "Zone 2",
+      "name": "Ukraine",
       "side": "B",
-      "note": "Example zone",
+      "note": "Ukraine",
       "coords": [
-        [49.5, 36.0],
-        [49.7, 36.3],
-        [49.4, 36.6]
+        [52.4, 22.1],
+        [52.4, 40.2],
+        [44.4, 40.2],
+        [44.4, 22.1],
+        [52.4, 22.1]
       ]
     }
   ]
