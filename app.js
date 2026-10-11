@@ -61,4 +61,4 @@ document.getElementById('datePicker').addEventListener('change', (e) => {
 });
 
 // Initial load
-loadDay('2024-06-01');
+loadDay('2026-10-11');
