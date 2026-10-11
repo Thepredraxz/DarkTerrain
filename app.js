@@ -1,33 +1,52 @@
 // ============================================
-// DarkTerrain - daily war map
-// Auto-loads today's date
+// DarkTerrain - daily war map with editor
 // ============================================
 
-// ---------- Map initialization ----------
+// ---------- Map init ----------
 const map = L.map('map', {
-  zoomControl: true,
-  attributionControl: true
-}).setView([50.1, 36.2], 10);
+  zoomControl: true
+}).setView([48.5, 37.5], 6);
 
-// Dark tile layer (free, no API key needed)
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors',
   maxZoom: 19
 }).addTo(map);
 
 // ---------- Layers ----------
-const zonesLayer = L.layerGroup().addTo(map);
+const zonesLayer = L.layerGroup().addTo(map);       // loaded zones
+const drawnLayer = new L.FeatureGroup().addTo(map); // user drawings
 
-// ---------- Side colors ----------
+// ---------- Colors ----------
 const SIDE_COLORS = {
   A:       { color: '#d62828', fillColor: '#d62828', fillOpacity: 0.45, weight: 2 },
   B:       { color: '#1d3557', fillColor: '#1d3557', fillOpacity: 0.45, weight: 2 },
-  neutral: { color: '#888888', fillColor: '#888888', fillOpacity: 0.20, weight: 2 }
+  neutral: { color: '#888888', fillColor: '#888888', fillOpacity: 0.30, weight: 2 }
 };
 
-// ---------- Helpers ----------
+// ---------- Draw controls ----------
+const drawControl = new L.Control.Draw({
+  position: 'topleft',
+  edit: {
+    featureGroup: drawnLayer,
+    remove: true
+  },
+  draw: {
+    polygon: {
+      allowIntersection: false,
+      shapeOptions: { color: '#ffcc00', weight: 2, fillOpacity: 0.3 }
+    },
+    polyline: {
+      shapeOptions: { color: '#ffcc00', weight: 3 }
+    },
+    rectangle: false,
+    circle: false,
+    circlemarker: false,
+    marker: false
+  }
+});
+map.addControl(drawControl);
 
-// Today's date in YYYY-MM-DD (local timezone)
+// ---------- Helpers ----------
 function getToday() {
   const now = new Date();
   const y = now.getFullYear();
@@ -36,7 +55,7 @@ function getToday() {
   return `${y}-${m}-${d}`;
 }
 
-// ---------- Load data for a specific date ----------
+// ---------- Load data for a date ----------
 async function loadDay(date) {
   zonesLayer.clearLayers();
   const info = document.getElementById('info');
@@ -55,9 +74,18 @@ async function loadDay(date) {
 
     data.zones.forEach(zone => {
       const style = SIDE_COLORS[zone.side] || SIDE_COLORS.neutral;
-      L.polygon(zone.coords, style)
-  .bindTooltip(zone.name, { sticky: true })
-  .addTo(zonesLayer);
+
+      if (zone.type === 'line') {
+        // front line
+        L.polyline(zone.coords, { color: '#ffcc00', weight: 3 })
+          .bindTooltip(zone.name || 'Front line', { sticky: true })
+          .addTo(zonesLayer);
+      } else {
+        // polygon zone
+        L.polygon(zone.coords, style)
+          .bindTooltip(zone.name || zone.side || 'Zone', { sticky: true })
+          .addTo(zonesLayer);
+      }
     });
 
     info.textContent =
@@ -67,22 +95,59 @@ async function loadDay(date) {
 
   } catch (err) {
     info.textContent = 'Error: ' + err.message;
-    console.warn(err);
   }
 }
 
-// ---------- Auto date setup ----------
+// ---------- Auto date ----------
 const today = getToday();
-
 const datePicker = document.getElementById('datePicker');
 datePicker.value = today;
-datePicker.max = today;            // can't pick future dates
-datePicker.min = '2022-02-24';     // adjust to your earliest data
+datePicker.max = today;
+datePicker.min = '2022-02-24';
 
-// ---------- Date picker handler ----------
-datePicker.addEventListener('change', (e) => {
-  loadDay(e.target.value);
-});
+datePicker.addEventListener('change', (e) => loadDay(e.target.value));
 
 // ---------- Initial load ----------
 loadDay(today);
+
+// ---------- Export drawings ----------
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const features = drawnLayer.getLayers();
+  const zones = [];
+
+  features.forEach(layer => {
+    if (layer instanceof L.Polygon) {
+      const latlngs = layer.getLatLngs()[0];
+      const coords = latlngs.map(p => [round(p.lat), round(p.lng)]);
+      // close ring
+      if (coords.length > 0) coords.push(coords[0]);
+      zones.push({
+        name: 'Zone ' + (zones.length + 1),
+        side: 'neutral',
+        type: 'polygon',
+        coords: coords
+      });
+    } else if (layer instanceof L.Polyline) {
+      const latlngs = layer.getLatLngs();
+      const coords = latlngs.map(p => [round(p.lat), round(p.lng)]);
+      zones.push({
+        name: 'Front line ' + (zones.length + 1),
+        type: 'line',
+        coords: coords
+      });
+    }
+  });
+
+  const output = {
+    date: datePicker.value,
+    source: 'manual drawing',
+    zones: zones
+  };
+
+  document.getElementById('exportText').value = JSON.stringify(output, null, 2);
+  document.getElementById('exportBox').style.display = 'block';
+});
+
+function round(n) {
+  return Math.round(n * 10000) / 10000;
+}
