@@ -10,9 +10,8 @@ const map = L.map('map', {
 }).setView([48.5, 37.5], 6);
 
 // Dark tile layer (free, no API key needed)
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap &copy; CARTO',
-  subdomains: 'abcd',
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
   maxZoom: 19
 }).addTo(map);
 
