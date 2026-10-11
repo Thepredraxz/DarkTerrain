@@ -1,28 +1,43 @@
+// ============================================
 // DarkTerrain - daily war map
-// Map initialization
+// Auto-loads today's date
+// ============================================
+
+// ---------- Map initialization ----------
 const map = L.map('map', {
   zoomControl: true,
   attributionControl: true
-}).setView([48.5, 37.5], 7);
+}).setView([48.5, 37.5], 6);
 
-// Dark tile layer (CartoDB Dark Matter - free)
+// Dark tile layer (free, no API key needed)
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap &copy; CARTO',
   subdomains: 'abcd',
   maxZoom: 19
 }).addTo(map);
 
-// Layer for zones
+// ---------- Layers ----------
 const zonesLayer = L.layerGroup().addTo(map);
 
-// Colors for different sides
+// ---------- Side colors ----------
 const SIDE_COLORS = {
-  A: { color: '#e63946', fillColor: '#e63946', fillOpacity: 0.35, weight: 2 },
-  B: { color: '#457b9d', fillColor: '#457b9d', fillOpacity: 0.35, weight: 2 },
-  neutral: { color: '#888', fillColor: '#888', fillOpacity: 0.2, weight: 2 }
+  A:       { color: '#e63946', fillColor: '#e63946', fillOpacity: 0.35, weight: 2 },
+  B:       { color: '#457b9d', fillColor: '#457b9d', fillOpacity: 0.35, weight: 2 },
+  neutral: { color: '#888888', fillColor: '#888888', fillOpacity: 0.20, weight: 2 }
 };
 
-// Load data for a specific date
+// ---------- Helpers ----------
+
+// Today's date in YYYY-MM-DD (local timezone)
+function getToday() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// ---------- Load data for a specific date ----------
 async function loadDay(date) {
   zonesLayer.clearLayers();
   const info = document.getElementById('info');
@@ -34,14 +49,20 @@ async function loadDay(date) {
 
     const data = await res.json();
 
+    if (!data.zones || data.zones.length === 0) {
+      info.textContent = 'No zones for ' + date;
+      return;
+    }
+
     data.zones.forEach(zone => {
       const style = SIDE_COLORS[zone.side] || SIDE_COLORS.neutral;
+      const popup =
+        '<b>' + zone.name + '</b><br>' +
+        'Side: ' + (zone.side || 'unknown') +
+        (zone.note ? '<br><i>' + zone.note + '</i>' : '');
+
       L.polygon(zone.coords, style)
-        .bindPopup(
-          '<b>' + zone.name + '</b><br>' +
-          'Side: ' + (zone.side || 'unknown') +
-          (zone.note ? '<br><i>' + zone.note + '</i>' : '')
-        )
+        .bindPopup(popup)
         .addTo(zonesLayer);
     });
 
@@ -52,13 +73,22 @@ async function loadDay(date) {
 
   } catch (err) {
     info.textContent = 'Error: ' + err.message;
+    console.warn(err);
   }
 }
 
-// Date picker handler
-document.getElementById('datePicker').addEventListener('change', (e) => {
+// ---------- Auto date setup ----------
+const today = getToday();
+
+const datePicker = document.getElementById('datePicker');
+datePicker.value = today;
+datePicker.max = today;            // can't pick future dates
+datePicker.min = '2022-02-24';     // adjust to your earliest data
+
+// ---------- Date picker handler ----------
+datePicker.addEventListener('change', (e) => {
   loadDay(e.target.value);
 });
 
-// Initial load
-loadDay('2026-10-11');
+// ---------- Initial load ----------
+loadDay(today);
