@@ -20,8 +20,8 @@ const zonesLayer = L.layerGroup().addTo(map);
 
 // ---------- Side colors ----------
 const SIDE_COLORS = {
-  A:       { color: '#e63946', fillColor: '#e63946', fillOpacity: 0.35, weight: 2 },
-  B:       { color: '#457b9d', fillColor: '#457b9d', fillOpacity: 0.35, weight: 2 },
+  A:       { color: '#d62828', fillColor: '#d62828', fillOpacity: 0.45, weight: 2 },
+  B:       { color: '#1d3557', fillColor: '#1d3557', fillOpacity: 0.45, weight: 2 },
   neutral: { color: '#888888', fillColor: '#888888', fillOpacity: 0.20, weight: 2 }
 };
 
