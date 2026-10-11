@@ -174,9 +174,15 @@ document.getElementById('exportBtn').addEventListener('click', () => {
       const latlngs = layer.getLatLngs()[0];
       const coords = latlngs.map(p => [round(p.lat), round(p.lng)]);
       if (coords.length > 0) coords.push(coords[0]);
+      // determine side by color
+      const color = layer.options.color;
+      let side = 'neutral';
+      if (color === '#d62828') side = 'A';
+      else if (color === '#1d3557') side = 'B';
+
       zones.push({
         name: 'Zone ' + (zones.length + 1),
-        side: 'neutral',
+        side: side,
         type: 'polygon',
         coords: coords
       });
@@ -186,7 +192,8 @@ document.getElementById('exportBtn').addEventListener('click', () => {
       zones.push({
         name: 'Front line ' + (zones.length + 1),
         type: 'line',
-        coords: coords
+        coords: coords,
+        side: 'front'
       });
     }
   });
