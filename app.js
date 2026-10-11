@@ -18,10 +18,22 @@ const drawnLayer = new L.FeatureGroup().addTo(map); // user drawings
 
 // ---------- Colors ----------
 const SIDE_COLORS = {
-  A:       { color: '#d62828', fillColor: '#d62828', fillOpacity: 0.45, weight: 2 },
-  B:       { color: '#1d3557', fillColor: '#1d3557', fillOpacity: 0.45, weight: 2 },
-  neutral: { color: '#888888', fillColor: '#888888', fillOpacity: 0.30, weight: 2 }
+  A:       { color: '#d62828', fillColor: '#d62828', fillOpacity: 0.45, weight: 2 }, // red
+  B:       { color: '#1d3557', fillColor: '#1d3557', fillOpacity: 0.45, weight: 2 }, // blue
+  neutral: { color: '#888888', fillColor: '#888888', fillOpacity: 0.40, weight: 2 }, // grey
+  front:   { color: '#d62828', fillColor: '#d62828', fillOpacity: 0.9, weight: 4 }  // red line
 };
+
+// Current drawing mode: 'A' (red), 'neutral' (grey), 'front' (red line)
+let currentMode = 'A';
+
+function getDrawStyle() {
+  if (currentMode === 'front') {
+    return { color: '#d62828', weight: 4, opacity: 0.9 };
+  }
+  const s = SIDE_COLORS[currentMode];
+  return { color: s.color, fillColor: s.fillColor, fillOpacity: s.fillOpacity, weight: 2 };
+}
 
 // ---------- Draw controls ----------
 const drawControl = new L.Control.Draw({
